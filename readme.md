@@ -3,6 +3,40 @@
 Simple example for a stateless JAX-RS service with JWT authentication. JWTs are issued by Keycloak and contain
 claims with general user information as well as current user roles.
 
+# Build
+```
+mvn clean package -DskipTests
+```
+
+# Run
+
+## Run Keycloak
+```
+docker run \
+  -d \
+  --name keycloak \
+  -e KEYCLOAK_USER=admin \
+  -e KEYCLOAK_PASSWORD=admin \
+  -p 8180:8180 \
+  -v `pwd`/quarkus-quickstart-realm.json:/config/quarkus-quickstart-realm.json \
+  -it jboss/keycloak:5.0.0 \
+  -b 0.0.0.0 \
+  -Djboss.http.port=8180 \
+  -Dkeycloak.migration.action=import \
+  -Dkeycloak.migration.provider=singleFile \
+  -Dkeycloak.migration.file=/config/quarkus-quickstart-realm.json \
+  -Dkeycloak.migration.strategy=OVERWRITE_EXISTING
+```
+
+## Run with Remote Debug
+```
+java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:8787 \
+     -jar target/quarkus-keycloak-demo-1.0.0-SNAPSHOT-runner.jar \
+     ./target/classes \
+     ./target/wiring-devmode \
+     ./target/transformer-cache
+```
+
 ## Retrieve Tokens
 ```
 KC_CLIENT_ID=quarkus-front
@@ -49,4 +83,35 @@ KC_ACCESS_TOKEN=$(echo $KC_RESPONSE | jq -r .access_token)
 # Try to call endpoints - /data/user and /data/admin should work both
 curl -v -H "Authorization: Bearer $KC_ACCESS_TOKEN" http://localhost:8082/data/admin
 curl -v -H "Authorization: Bearer $KC_ACCESS_TOKEN" http://localhost:8082/data/user
+```
+
+# Issues
+
+## Current Username claim holds on to value of first request
+
+0) Run Keycloak and the Quarkus App
+
+1) Make a request as user `test` and call the `http://localhost:8082/data/user` endpoint, (see Retrieve Tokens)
+This will output
+```
+data for user "test"
+```
+Calling the `http://localhost:8082/data/admin` endpoint correctly fails with:
+```
+Access forbidden: role not allowed%
+```
+
+2) Make request as user `admin` and call the `http://localhost:8082/data/user` endpoint again
+This will erroneously output:
+```
+data for user "test"
+```
+However,calling `http://localhost:8082/data/admin` endpoint succeds now, but still shows the wrong username.
+```
+data for admin "test"
+```
+
+Somehow the `Optional<JsonString> currentUsername` holds onto to the value from the previous JWT.
+```
+see: com.github.thomasdarimont.keycloak.DataResource.currentUsername
 ```
