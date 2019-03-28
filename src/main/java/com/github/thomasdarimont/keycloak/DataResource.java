@@ -4,6 +4,7 @@ import org.eclipse.microprofile.jwt.Claim;
 import org.eclipse.microprofile.jwt.Claims;
 
 import javax.annotation.security.RolesAllowed;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonString;
@@ -13,7 +14,16 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.Optional;
 
+/**
+ * Simple REST Resource that consumes information provided by a JWT token.
+ *
+ * Note that {@code RequestScoped} is explicitly needed here, since Quarkus changed the default
+ * scope for JAX-RS Resources to be {@code ApplicationScoped}.
+ *
+ * See: https://github.com/quarkusio/quarkus/issues/1710
+ */
 @Path("/data")
+@RequestScoped
 public class DataResource {
 
     private static final JsonString ANOYNMOUS = Json.createValue("anonymous");

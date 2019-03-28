@@ -85,33 +85,27 @@ curl -v -H "Authorization: Bearer $KC_ACCESS_TOKEN" http://localhost:8082/data/a
 curl -v -H "Authorization: Bearer $KC_ACCESS_TOKEN" http://localhost:8082/data/user
 ```
 
-# Issues
+# Demo
 
-## Current Username claim holds on to value of first request
+> Run Keycloak and the Quarkus App
 
-0) Run Keycloak and the Quarkus App
-
-1) Make a request as user `test` and call the `http://localhost:8082/data/user` endpoint, (see Retrieve Tokens)
+> Make a request as user `test` and call the `http://localhost:8082/data/user` endpoint, (see Retrieve Tokens)
 This will output
 ```
 data for user "test"
 ```
-Calling the `http://localhost:8082/data/admin` endpoint correctly fails with:
+> Calling the `http://localhost:8082/data/admin` endpoint correctly fails with:
 ```
 Access forbidden: role not allowed%
 ```
 
-2) Make request as user `admin` and call the `http://localhost:8082/data/user` endpoint again
-This will erroneously output:
+> Make request as user `admin` and call the `http://localhost:8082/data/user` endpoint again
+This will output:
 ```
-data for user "test"
-```
-However,calling `http://localhost:8082/data/admin` endpoint succeds now, but still shows the wrong username.
-```
-data for admin "test"
+data for user "admin"
 ```
 
-Somehow the `Optional<JsonString> currentUsername` holds onto to the value from the previous JWT.
+> calling `http://localhost:8082/data/admin` endpoint succeeds now
 ```
-see: com.github.thomasdarimont.keycloak.DataResource.currentUsername
+data for admin "admin"
 ```
