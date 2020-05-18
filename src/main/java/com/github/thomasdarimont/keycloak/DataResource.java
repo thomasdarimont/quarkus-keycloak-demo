@@ -16,10 +16,10 @@ import java.util.Optional;
 
 /**
  * Simple REST Resource that consumes information provided by a JWT token.
- *
+ * <p>
  * Note that {@code RequestScoped} is explicitly needed here, since Quarkus changed the default
  * scope for JAX-RS Resources to be {@code ApplicationScoped}.
- *
+ * <p>
  * See: https://github.com/quarkusio/quarkus/issues/1710
  */
 @Path("/data")

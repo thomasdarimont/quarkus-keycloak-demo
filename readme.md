@@ -19,7 +19,7 @@ docker run \
   -e KEYCLOAK_PASSWORD=admin \
   -p 8180:8180 \
   -v `pwd`/quarkus-quickstart-realm.json:/config/quarkus-quickstart-realm.json \
-  -it jboss/keycloak:5.0.0 \
+  -it quay.io/keycloak/keycloak:10.0.1 \
   -b 0.0.0.0 \
   -Djboss.http.port=8180 \
   -Dkeycloak.migration.action=import \
